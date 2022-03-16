@@ -6,10 +6,11 @@
 
 $targetFolder = "$([Environment]::GetFolderPath("Desktop"))\SolrCloud"
 $installService = $false
-$collectionPrefix = "search"
+$collectionFile = "$(PsScriptRoot)\Collections.txt"
 $solrPackage = "https://archive.apache.org/dist/lucene/solr/7.2.1/solr-7.2.1.zip" # For Sitecore v9.1
 #$solrPackage = "https://archive.apache.org/dist/lucene/solr/7.5.0/solr-7.5.0.zip" # For Sitecore v9.2
 #$solrPackage = "https://archive.apache.org/dist/lucene/solr/8.1.1/solr-8.1.1.zip" # For Sitecore V9.3
+
 
 $zkData = @(
 	@{Host = "localhost"; Folder="zk1"; InstanceID=1; ClientPort = 2971; EnsemblePorts="2981:2991"},
@@ -77,4 +78,4 @@ foreach($instance in $solrData)
 	Wait-ForSolrToStart $instance.Host $instance.ClientPort
 }
 
-Configure-SolrCollection -targetFolder $targetFolder -replicas $solrData.Length -solrHostname $solrData[0].Host -solrClientPort $solrData[0].ClientPort -collectionPrefix $collectionPrefix
+Configure-SolrCollection -targetFolder $targetFolder -replicas $solrData.Length -solrHostname $solrData[0].Host -solrClientPort $solrData[0].ClientPort -collectionFile $collectionFile
