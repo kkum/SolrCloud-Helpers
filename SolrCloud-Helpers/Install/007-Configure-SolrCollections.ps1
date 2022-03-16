@@ -228,10 +228,10 @@ function Configure-SolrCollection
 		[int]$solrClientPort = 9999,
 
 		[int]$shards = 1,
-        [int]$replicas = 1,
-        [int]$shardsPerNode = 1,
+        	[int]$replicas = 1,
+        	[int]$shardsPerNode = 1,
 
-		[string]$collectionPrefix = "sc911"
+		[string]$collectionNamesFile
 	)
 
 	$coreConfigFolder = Expand-Base64CoreConfig $targetFolder $zip
@@ -241,29 +241,16 @@ function Configure-SolrCollection
 
 	Remove-Item $coreConfigFolder -Recurse
 
-	$sitecoreCores = @(
-		"$($collectionPrefix)_core_index",
-		"$($collectionPrefix)_fxm_master_index",
-		"$($collectionPrefix)_fxm_web_index",
-		"$($collectionPrefix)_marketingdefinitions_master",
-		"$($collectionPrefix)_marketingdefinitions_web",
-		"$($collectionPrefix)_marketing_asset_index_master",
-		"$($collectionPrefix)_marketing_asset_index_web",
-		"$($collectionPrefix)_master_index",
-		"$($collectionPrefix)_suggested_test_index",
-		"$($collectionPrefix)_testing_index",
-		"$($collectionPrefix)_web_index"
-	)
+	$collections = Get-Content $collectionNamesFile
+
+	$sitecoreCores = $collections | where { -not $_.Contains("xdb") }
 
 	foreach($core in $sitecoreCores)
 	{
 		Create-SolrCollection $solrHostname $solrClientPort $core "Sitecore" -shards $shards -replicas $replicas -shardsPerNode $shardsPerNode
 	}
 
-	$xDbCores = @(
-		"$($collectionPrefix)_xdb",
-		"$($collectionPrefix)_xdb_rebuild"
-	)
+	$xDbCores = $collections | where { $_.Contains("xdb") }
 
 	foreach($core in $xDbCores)
 	{
